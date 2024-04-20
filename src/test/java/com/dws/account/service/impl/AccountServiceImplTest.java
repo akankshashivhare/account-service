@@ -4,6 +4,7 @@ import com.dws.account.entity.AccountEntity;
 import com.dws.account.exception.DuplicateAccountException;
 import com.dws.account.exception.AccountNotFoundException;
 import com.dws.account.model.Account;
+import com.dws.account.model.TransferRequest;
 import com.dws.account.repository.AccountRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,7 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 
 import java.math.BigDecimal;
-import java.util.Objects;
+
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -29,7 +30,7 @@ class AccountServiceTest {
     private AccountServiceImpl accountService;
 
     @Mock
-    private EmailNotificationService emailNotificationService;
+    private EmailNotificationService notificationService;
     @Mock
     private ModelMapper modelMapper;
 
@@ -90,13 +91,13 @@ class AccountServiceTest {
 
         when(accountRepository.findById(1L)).thenReturn(Optional.of(account1));
         when(accountRepository.findById(2L)).thenReturn(Optional.of(account2));
-        doNothing().when(notificationService).notifyAboutTransfer(anyLong(),anyString());
+        doNothing().when(notificationService).sendNotification(anyLong(),anyString());
 
-        accountService.transfer(transferRequest);
+        accountService.transferAmount(transferRequest);
 
 
-        assertEquals(new BigDecimal(4000.0),account2.getBalance());
-        assertEquals(new BigDecimal(5000.0),account1.getBalance());
+        assertEquals(new BigDecimal(2000.0),account2.getBalance());
+        assertEquals(new BigDecimal(7000.0),account1.getBalance());
     }
 
 
