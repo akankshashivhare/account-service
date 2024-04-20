@@ -78,6 +78,26 @@ class AccountServiceTest {
         AccountNotFoundException exception = assertThrows(AccountNotFoundException.class, () -> accountService.getAccountDetails(1L));
         assertEquals("Account with ID 1 not found", exception.getMessage());
     }
+    @Test
+    public void testTransferAmountSuccess() {
+        TransferRequest transferRequest = new TransferRequest(2L, 1L, new BigDecimal(1000.0));
+        AccountEntity account1=new AccountEntity();
+        account1.setBalance(new BigDecimal(6000.0));
+        account1.setId(1L);
+        AccountEntity account2=new AccountEntity();
+        account2.setBalance(new BigDecimal(3000.0));
+        account2.setId(2L);
+
+        when(accountRepository.findById(1L)).thenReturn(Optional.of(account1));
+        when(accountRepository.findById(2L)).thenReturn(Optional.of(account2));
+        doNothing().when(notificationService).notifyAboutTransfer(anyLong(),anyString());
+
+        accountService.transfer(transferRequest);
+
+
+        assertEquals(new BigDecimal(4000.0),account2.getBalance());
+        assertEquals(new BigDecimal(5000.0),account1.getBalance());
+    }
 
 
 }
